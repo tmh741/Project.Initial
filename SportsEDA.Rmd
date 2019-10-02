@@ -1,0 +1,255 @@
+---
+title: "Initial EDA"
+author: "Tim Hogan"
+date: "Today"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Haley: Data Summary
+
+```{r, include=FALSE}
+library(tidyverse)
+library(magrittr)
+library(esquisse)
+library(stringr)
+library(gridExtra)
+library(kableExtra)
+```
+
+```{r}
+Lowelldata <- read.csv("UNH Export for Haley Lowell 55932 - UNH Export for Haley Lowell 55932.csv")
+```
+
+```{r}
+names <- Lowelldata[8,]
+
+Lowell.df <- Lowelldata[9:nrow(Lowelldata),]
+
+colnames(Lowell.df) <- c(t(names))
+
+Lowell.df %<>% separate(Timestamp, into = c("Date","TimeStamp","AM/PM"), sep = " ")
+```
+
+```{r, echo=FALSE}
+Lowell.df$Velocity <- type.convert(Lowell.df$Velocity)
+
+Lowell.df$Odometer <- type.convert(Lowell.df$Odometer)
+
+Lowell.df$Seconds <- type.convert(Lowell.df$Seconds)
+
+Lowell.df$'Player Load' <- type.convert(Lowell.df$'Player Load')
+
+Lowvel <- cbind(t(range(Lowell.df$Velocity)),mean(Lowell.df$Velocity))
+Lowodo <- cbind( t(range(Lowell.df$Odometer)),mean(Lowell.df$Odometer))
+Lowsec <- cbind( t(range(Lowell.df$Seconds)),mean(Lowell.df$Seconds))
+Lowloa <- cbind(t(range(Lowell.df$'Player Load')),mean(Lowell.df$'Player Load'))
+
+Lowtable <- rbind(Lowvel,Lowodo,Lowsec,Lowloa)
+
+Lowtable <- round(Lowtable, digits =2 )
+
+colnames <- c("Velocity","Odometer","Seconds","Player Load")
+
+Lowtable <- cbind(colnames, Lowtable)
+
+kable(Lowtable, digits=1, booktabs=TRUE, col.names = c("", "Minimum","Maximum","Mean")) %>%
+  kable_styling(latex_options = "striped")
+
+```
+
+## Haley's Data
+
+```{r, echo = FALSE}
+low1 <- ggplot(Lowell.df) +
+  aes(x = `Heart Rate`) +
+  geom_bar(fill = "#0c4c8a") +
+  labs(y = "Occurrences", title = "Haley's Heart Rates") +
+  theme_minimal()
+
+low2 <- ggplot(Lowell.df) +
+  aes(x = Velocity) +
+  geom_histogram(bins = 30L, fill = "#0c4c8a") +
+  labs(x = "Velocity", y = "Frequency", title = " Haley's Velocities") +
+  theme_minimal()
+
+low3 <- ggplot(Lowell.df) +
+  aes(x = Odometer) +
+  geom_histogram(bins = 30L, fill = "#0c4c8a") +
+  labs(x = "Distance Traveled", y = "Frequency", title = "Haley's Odometer") +
+  theme_minimal()
+
+low4 <- ggplot(Lowell.df) +
+  aes(x = `Player Load`) +
+  geom_histogram(bins = 30L, fill = "#0c4c8a") +
+  labs(y = "Count", title = "Haley's Player Load") +
+  theme_minimal()
+
+grid.arrange(low1,low2,low3,low4,ncol=2,nrow=2)
+
+```
+
+## Haley's Player Load
+
+```{r,echo=FALSE}
+plotHaley <- ggplot(Lowell.df) +
+  aes(x = Seconds, y = `Player Load`, colour = Odometer) +
+  geom_point(size = 1L) +
+  scale_color_viridis_c(option = "plasma") +
+  labs(x = "Time (seconds)", y = "Player Load", title = "Player Load with Time", subtitle = "Player = Haley", color = "Odometer") +
+  theme_minimal()
+plotHaley
+```
+
+## Haley's Velocity
+
+```{r,echo=FALSE}
+HaleyVelo <- ggplot(Lowell.df) +
+  aes(x = Seconds, y = `Velocity`) +
+  geom_point(size = 1L, colour = "#0c4c8a") +
+  labs(x = "Time (seconds)", y = "Velocity", title = "Velocity with Time", subtitle = "Player = Haley") +
+  theme_minimal()
+HaleyVelo
+```
+
+## Summary for Liz's Data
+
+```{r,echo=FALSE}
+Lizdata <- read.csv("UNH Export for Elizabeth Ryan 68501exp.csv")
+
+names <- Lizdata[8,]
+
+Liz.df <- Lizdata[9:nrow(Lizdata),]
+
+colnames(Liz.df) <- c(t(names))
+
+Liz.df %<>% separate(Timestamp, into = c("Date","TimeStamp","AM/PM"), sep = " ")
+
+Liz.df$Velocity <- type.convert(Liz.df$Velocity)
+
+Liz.df$Odometer <- type.convert(Liz.df$Odometer)
+
+Liz.df$Seconds <- type.convert(Liz.df$Seconds)
+
+Liz.df$Latitude <- type.convert(Liz.df$Latitude)
+
+Liz.df$Longitude <- type.convert(Liz.df$Longitude)
+
+Liz.df$'Player Load' <- type.convert(Liz.df$'Player Load')
+```
+
+```{r,echo=FALSE}
+Lizvel <- cbind(t(range(Liz.df$Velocity)),mean(Liz.df$Velocity))
+Lizodo <- cbind( t(range(Liz.df$Odometer)),mean(Liz.df$Odometer))
+Lizsec <- cbind( t(range(Liz.df$Seconds)),mean(Liz.df$Seconds))
+Lizloa <- cbind(t(range(Liz.df$'Player Load')),mean(Liz.df$'Player Load'))
+
+Liztable <- rbind(Lizvel,Lizodo,Lizsec,Lizloa)
+
+Liztable <- round(Liztable, digits =2 )
+
+colnames <- c("Velocity","Odometer","Seconds","Player Load")
+
+Liztable <- cbind(colnames, Liztable)
+
+kable(Liztable, digits=1, booktabs=TRUE, col.names = c("", "Minimum","Maximum","Mean")) %>%
+  kable_styling(latex_options = "striped")
+```
+
+
+## Liz Summary: Histograms
+```{r,echo=FALSE}
+liz1 <- ggplot(Liz.df) +
+  aes(x = `Heart Rate`) +
+  geom_bar(fill = "#0c4c8a") +
+  labs(y = "Occurrences", title = "Liz's Heart Rate") +
+  theme_minimal()
+
+liz2 <- ggplot(Liz.df) +
+  aes(x = Velocity) +
+  geom_histogram(bins = 30L, fill = "#0c4c8a") +
+  labs(x = "Velocity", y = "Frequency", title = "Liz's Velocities") +
+  theme_minimal()
+
+liz3 <- ggplot(Liz.df) +
+  aes(x = Odometer) +
+  geom_histogram(bins = 30L, fill = "#0c4c8a") +
+  labs(x = "Distance Traveled", y = "Frequency", title = "Liz's Odometer") +
+  theme_minimal()
+
+liz4 <- ggplot(Liz.df) +
+  aes(x = `Player Load`) +
+  geom_histogram(bins = 30L, fill = "#0c4c8a") +
+  labs(y = "Count", title = "Liz's Player Load") +
+  theme_minimal()
+grid.arrange(liz1,liz2,liz3,liz4,nrow=2,ncol=2)
+```
+
+## Liz: Player Load
+```{r, echo=FALSE}
+plotLiz <- ggplot(Liz.df) +
+  aes(x = Seconds, y = `Player Load`, colour = Odometer) +
+  geom_point(size = 1L) +
+  scale_color_viridis_c(option = "plasma") +
+  labs(x = "Time (seconds)", y = "Player Load", title = "Player Load with Time", subtitle = "Player = Liz", color = "Odometer") +
+  theme_minimal()
+plotLiz
+```
+
+## Liz Velocity
+
+```{r,echo=FALSE}
+LizVelo <- ggplot(Liz.df) +
+  aes(x = Seconds, y = `Velocity`) +
+  geom_point(size = 1L, colour = "#0c4c8a") +
+  labs(x = "Time (seconds)", y = "Velocity", title = "Velocity with Time", subtitle = "Player = Haley") +
+  theme_minimal()
+LizVelo
+```
+
+## Comparing Liz and Haley
+
+```{r, echo=FALSE}
+grid.arrange(plotLiz,plotHaley,nrow=2)
+```
+
+## Liz's Odometer vs Player Load
+
+```{r,echo=FALSE}
+line1 <- ggplot(Liz.df) +
+  aes(x = Odometer, y = `Player Load`) +
+  geom_point(size = 1L, colour = "#0c4c8a") +
+  labs(x = "Distance Travelled", y = "Player Load", title = "Odometer vs Player Load", subtitle = "Player = Liz") +
+  theme_minimal()
+
+line2 <- ggplot(Lowell.df) +
+  aes(x = Odometer, y = `Player Load`) +
+  geom_point(size = 1L, colour = "#0c4c8a") +
+  labs(x = "Distance Travelled", y = "Player Load", title = "Odometer vs Player Load", subtitle = "Player = Haley") +
+  theme_minimal()
+grid.arrange(line1,line2,ncol=2)
+```
+
+## Liz's Location
+
+```{r,echo=FALSE}
+ggplot(Liz.df) +
+  aes(x = Latitude, y = Longitude) +
+  geom_point(size = 0.3, colour = "#0c4c8a") +
+  labs(title = "Lat vs Long", subtitle = "Player = Liz") +
+  theme_minimal()
+```
+
+## Questions
+
+* What should we do about acceleration?
+    + Is there a cutoff where we can make it 0?
+    + How should we set a cutoff?
+
+* How should we interpret latitude and longitude?
+
+* How can we codify players and games?
